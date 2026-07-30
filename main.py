@@ -1,20 +1,35 @@
-from crawler import fetch_page_title
+import requests
+from bs4 import BeautifulSoup
+
+from sources import SOURCES
 
 
-def main() -> None:
-    url = "https://www.court.gov.cn"
-
-    print("赵律AI法律内容中心启动成功！")
-    print("正在访问：", url)
-
-    try:
-        title = fetch_page_title(url)
-        print("网页标题：", title)
-        print("采集模块运行成功！")
-    except Exception as exc:
-        print("采集模块运行失败：", exc)
-        raise
+headers = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/138.0 Safari/537.36"
+    )
+}
 
 
-if __name__ == "__main__":
-    main()
+for source in SOURCES:
+    if not source["enabled"]:
+        continue
+
+    print("=" * 60)
+    print(source["name"])
+    print(source["column"])
+    print(source["url"])
+
+    response = requests.get(
+        source["url"],
+        headers=headers,
+        timeout=20,
+    )
+
+    print("HTTP状态：", response.status_code)
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    print("网页标题：", soup.title.text.strip())
