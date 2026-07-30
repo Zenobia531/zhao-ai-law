@@ -1,11 +1,20 @@
-import requests
+from crawler import fetch_page_title
 
-print("赵律AI法律内容中心启动成功！")
 
-url = "https://www.court.gov.cn"
+def main() -> None:
+    url = "https://www.court.gov.cn"
 
-try:
-    response = requests.get(url, timeout=10)
-    print("网站访问成功：", response.status_code)
-except Exception as e:
-    print("访问失败：", e)
+    print("赵律AI法律内容中心启动成功！")
+    print("正在访问：", url)
+
+    try:
+        title = fetch_page_title(url)
+        print("网页标题：", title)
+        print("采集模块运行成功！")
+    except Exception as exc:
+        print("采集模块运行失败：", exc)
+        raise
+
+
+if __name__ == "__main__":
+    main()
