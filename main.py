@@ -1,9 +1,7 @@
 from turtle import title
 
-import requests
-from bs4 import BeautifulSoup
-
 from sources import SOURCES
+from crawler import parse_court_article_list, download_html
 
 from urllib.parse import urljoin
 
@@ -26,31 +24,20 @@ for source in SOURCES:
     print(source["column"])
     print(source["url"])
 
-    response = requests.get(
-        source["url"],
-        headers=headers,
-        timeout=20,
-    )
+    html = download_html(source["url"])
 
-    print("HTTP状态：", response.status_code)
+    print("网页下载成功")
 
-    soup = BeautifulSoup(response.text, "html.parser")
+articles = parse_court_article_list(
+    html=html,
+    source_name=source["name"],
+    source_url=source["url"],
+)
 
-    article_list = soup.find("div", class_="sec_list")
-    #print(article_list)
-   
-    articles = article_list.find("ul").find_all("li", recursive=False)
+print("文章数量：", len(articles))
 
-    print("文章数量：", len(articles))
-
-    for article in articles:
-        link_tag = article.find("a")
-
-        title = link_tag.text.strip()
-        date = article.find("i", class_="date").text.strip()
-        link = urljoin(source["url"], link_tag["href"])
-
-        print(title)
-        print(date)
-        print(link)
-        print("-" * 40)
+for article in articles:
+    print(article.title)
+    print(article.publish_time)
+    print(article.url)
+    print("-" * 40)
